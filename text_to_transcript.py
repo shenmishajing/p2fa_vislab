@@ -38,7 +38,7 @@ def text_to_transcript(text_file, output_file, speaker_name):
 
     jsonschema.validate(out, transcript_schema)
     if output_file is None:
-        print json.dumps(out, indent=4)
+        print(json.dumps(out, indent=4))
     else:
         with open(output_file, 'w') as f:
             f.write(json.dumps(out, indent=4))
