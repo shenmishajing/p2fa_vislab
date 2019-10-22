@@ -72,4 +72,4 @@ class Pronounce(object):
 
 if __name__ == '__main__':
     pr = Pronounce(sys.argv[1:])
-    print pr.p()
+    print(pr.p())

@@ -32,7 +32,7 @@ this_dir = os.path.dirname(os.path.realpath(__file__))
 TRANSCRIPT_SCHEMA = json.load(open(os.path.join(this_dir, "alignment-schemas/transcript_schema.json")))
 ALIGNMENT_SCHEMA = json.load(open(os.path.join(this_dir, "alignment-schemas/alignment_schema.json")))
 
-from pronunciation import Pronounce
+from .pronunciation import Pronounce
 
 # global that maps the original punctuation to the output all-caps
 # with stripped punctuation
@@ -359,9 +359,9 @@ def writeJSON(outfile, word_alignments, phonemes = False):
         try:
 
             tmp_word = {"alignedWord": wrds[total_word_idx][0], "start": round(wrds[total_word_idx][1], 5),
-                "end": round(wrds[total_word_idx + word_length - 1][2], 5)
-                # "end": round(wrds[total_word_idx + word_length][1], 5)
-            }
+                        "end": round(wrds[total_word_idx + word_length - 1][2], 5)
+                        # "end": round(wrds[total_word_idx + word_length][1], 5)
+                        }
         except:
             import pdb;
             pdb.set_trace()
