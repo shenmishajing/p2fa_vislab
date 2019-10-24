@@ -510,11 +510,11 @@ def prep_scp(wavfile):
 
 
 def create_plp(hcopy_config):
-    os.system('HCopy -T 1 -C ' + hcopy_config + ' -S tmp/codetr.scp')
+    os.system('/home/wenhao/software/bin/HCopy -T 1 -C ' + hcopy_config + ' -S tmp/codetr.scp')
 
 
 def viterbi(input_mlf, word_dictionary, output_mlf, phoneset, hmmdir):
-    command = 'HVite -T 1 -a -m -I ' + input_mlf + ' -H ' + hmmdir + '/macros -H ' + hmmdir + '/hmmdefs  -S tmp/test.scp -i ' + output_mlf + ' -p 0.0 -s 5.0 ' + word_dictionary + ' ' + phoneset + ' > tmp/aligned.results'
+    command = '/home/wenhao/software/bin/HVite -T 1 -a -m -I ' + input_mlf + ' -H ' + hmmdir + '/macros -H ' + hmmdir + '/hmmdefs  -S tmp/test.scp -i ' + output_mlf + ' -p 0.0 -s 5.0 ' + word_dictionary + ' ' + phoneset + ' > tmp/aligned.results'
     print(command)
     # command = 'HVite -T 1 -a -m -I ' + input_mlf + ' -H ' + hmmdir + '/macros -H ' + hmmdir + '/hmmdefs  -S ./tmp/test.scp -i ' + output_mlf + ' -p 0.0 -s 5.0 ' + word_dictionary + ' ' + phoneset
     os.system(command)
