@@ -47,7 +47,7 @@ def prep_wav(orig_wav, out_wav, sr_override, sr_models, wave_start, wave_end):
         f = wave.open(out_wav, 'r')
         SR = f.getframerate()
         f.close()
-        print("Already re-sampled the wav file to " + str(SR))
+        # print("Already re-sampled the wav file to " + str(SR))
         return SR
 
     f = wave.open(orig_wav, 'r')
@@ -65,9 +65,9 @@ def prep_wav(orig_wav, out_wav, sr_override, sr_models, wave_start, wave_end):
         if sr_override != None:
             new_sr = sr_override
 
-        print("Resampling wav file from " + str(SR) + " to " + str(new_sr) + soxopts + "...")
+        # print("Resampling wav file from " + str(SR) + " to " + str(new_sr) + soxopts + "...")
         SR = new_sr
-        print("sox " + orig_wav + " -r " + str(SR) + " " + out_wav + "" + soxopts)
+        # print("sox " + orig_wav + " -r " + str(SR) + " " + out_wav + "" + soxopts)
         os.system("sox " + orig_wav + " -r " + str(SR) + " " + out_wav + "" + soxopts)
     else:
         # os.system("cp -f " + orig_wav + " " + out_wav)
@@ -76,7 +76,7 @@ def prep_wav(orig_wav, out_wav, sr_override, sr_models, wave_start, wave_end):
     return SR
 
 
-def prep_mlf(trsfile, mlffile, word_dictionary, surround, between, dialog_file = False):
+def prep_mlf(trsfile, mlffile, word_dictionary, surround, between, file_name, dialog_file = False):
     dict_tmp = {}
 
     infl = inflect.engine()
@@ -101,8 +101,8 @@ def prep_mlf(trsfile, mlffile, word_dictionary, surround, between, dialog_file =
         try:
             jsonschema.validate(dialog, TRANSCRIPT_SCHEMA)
         except jsonschema.ValidationError as e:
-            print("Input transcript file is not in the proper format.\nSee alignment-schemas/transcript_schema.json "
-                  "or https://github.com/srubin/p2fa-steve")
+            # print("Input transcript file is not in the proper format.\nSee alignment-schemas/transcript_schema.json "
+            #       "or https://github.com/srubin/p2fa-steve")
             raise e
 
         lines = [dl["line"] for dl in dialog]
@@ -173,7 +173,7 @@ def prep_mlf(trsfile, mlffile, word_dictionary, surround, between, dialog_file =
             # print new_up_wrd
             for wrd2 in new_up_wrd:
                 if (wrd2 not in dictionary) and (wrd2 not in dict_tmp):
-                    print(wrd2)
+                    # print(wrd2)
                     try:
                         if wrd2[-1] in ['s', 'S']:
                             twrd2 = int(wrd2[:-1])
@@ -207,34 +207,30 @@ def prep_mlf(trsfile, mlffile, word_dictionary, surround, between, dialog_file =
                             if extraword is not None:
                                 dict_tmp[wrd2] = year1pr + ' ' + yearprs[extraword][1] + ' ' + year2pr
                             else:
-                                dict_tmp[wrd2] = year1pr + ' ' + year2pr
-                            print(wrd2, dict_tmp[wrd2])
+                                dict_tmp[wrd2] = year1pr + ' ' + year2pr  # print(wrd2, dict_tmp[wrd2])
 
                         else:
                             num2wrd = num2wrd.upper()
                             num2wrd = num2wrd.replace('-', ' ')
                             num2wrd = num2wrd.replace(',', '')
                             num2wrd = num2wrd.replace(' ', '')
-                            print(num2wrd)
+                            # print(num2wrd)
                             # import pdb; pdb.set_trace()
                             pr = Pronounce(words = [num2wrd]).p(add_fake_stress = True)
                             prn = pr[num2wrd][1]
                             if wrd2[-1] in ['s', 'S']:
                                 prn += ' S'
-                            dict_tmp[wrd2] = prn
-                            print(prn)
+                            dict_tmp[wrd2] = prn  # print(prn)
                     except:
                         # print "###", e
                         pr = Pronounce(words = [wrd2]).p(add_fake_stress = True)
-                        dict_tmp[pr[wrd2][0]] = pr[wrd2][1]
-                        print(pr)
+                        dict_tmp[pr[wrd2][0]] = pr[wrd2][1]  # print(pr)
 
                 words.append(wrd2)
                 gwm_entry.append(wrd2)
                 if len(between) != 0:
                     words.extend(between)
 
-                    # try:  #     int(wrd2)  #     numwrds = infl.number_to_words(wrd2, andword='')  #     numwrds = numwrds.upper()  #     numwrds = numwrds.replace('-', ' ')  #     numwrds = numwrds.replace(',', '')  #     numwrds = numwrds.split()  #       #     for w in numwrds:  #         if w in dictionary:  #             words.append(w)  #             gwm_entry.append(w)  #             if between != None:  #                 words.append(between)  #         else:  #             print "SKIPPING NUM WORD", w  # except Exception, e:  #     print e  #     print "SKIPPING WORD", wrd2
             if len(gwm_entry) > 1:
                 global_word_map.append(gwm_entry)
                 global_lineidx_map.append(i)
@@ -251,14 +247,14 @@ def prep_mlf(trsfile, mlffile, word_dictionary, surround, between, dialog_file =
     if surround != None:
         words += surround.split(',')
 
-    writeInputMLF(mlffile, words)
+    writeInputMLF(mlffile, words, file_name)
     writeDictTmp(dict_tmp)
 
 
-def writeInputMLF(mlffile, words):
+def writeInputMLF(mlffile, words, file_name):
     fw = open(mlffile, 'w')
     fw.write('#!MLF!#\n')
-    fw.write('"*/tmp.lab"\n')
+    fw.write('"*/' + file_name + '_tmp.lab"\n')
     for wrd in words:
         if wrd.startswith("'"):
             wrd = "\\" + wrd
@@ -349,7 +345,7 @@ def writeJSON(outfile, word_alignments, phonemes = False):
         # if wrds[k][0] == "sp":
         #     continue
 
-        print(wrds[total_word_idx], global_word_map[real_word_count])
+        # print(wrds[total_word_idx], global_word_map[real_word_count])
 
         if wrds[total_word_idx][0] != "sp" and wrds[total_word_idx][0] != "{BR}":
             word_length = len(global_word_map[real_word_count]) - 1
@@ -479,30 +475,31 @@ def writeTextGrid(outfile, word_alignments):
 
 
 def prep_working_directory():
-    if os.path.exists('tmp'):
-        shutil.rmtree('tmp')
-    os.mkdir('tmp')
+    if not os.path.exists('tmp'):
+        os.mkdir('tmp')
 
     # os.system("rm -r -f ./tmp")  # os.system("mkdir ./tmp")
 
 
-def prep_scp(wavfile):
-    fw = open('tmp/codetr.scp', 'w')
-    fw.write(wavfile + ' tmp/tmp.plp\n')
+def prep_scp(wavfile, file_name):
+    fw = open('tmp/' + file_name + '_codetr.scp', 'w')
+    fw.write(wavfile + ' tmp/' + file_name + '_tmp.plp\n')
     fw.close()
-    fw = open('tmp/test.scp', 'w')
-    fw.write('tmp/tmp.plp\n')
+    fw = open('tmp/' + file_name + '_test.scp', 'w')
+    fw.write('tmp/' + file_name + '_tmp.plp\n')
     fw.close()
 
 
-def create_plp(hcopy_config):
-    os.system('/home/wenhao/software/bin/HCopy -T 1 -C ' + hcopy_config + ' -S tmp/codetr.scp')
+def create_plp(hcopy_config, file_name):
+    command = '/home/wenhao/software/bin/HCopy -T 1 -C ' + hcopy_config + ' -S ' + 'tmp/' + file_name + '_codetr.scp ' \
+                                                                                                        '> /dev/null'
+    # print('/home/wenhao/software/bin/HCopy -T 1 -C ' + hcopy_config + ' -S ' + 'tmp/' + file_name + '_codetr.scp')
+    os.system(command)
 
 
-def viterbi(input_mlf, word_dictionary, output_mlf, phoneset, hmmdir):
-    command = '/home/wenhao/software/bin/HVite -T 1 -a -m -I ' + input_mlf + ' -H ' + hmmdir + '/macros -H ' + hmmdir + '/hmmdefs  -S tmp/test.scp -i ' + output_mlf + ' -p 0.0 -s 5.0 ' + word_dictionary + ' ' + phoneset + ' > tmp/aligned.results'
-    print(command)
-    # command = 'HVite -T 1 -a -m -I ' + input_mlf + ' -H ' + hmmdir + '/macros -H ' + hmmdir + '/hmmdefs  -S ./tmp/test.scp -i ' + output_mlf + ' -p 0.0 -s 5.0 ' + word_dictionary + ' ' + phoneset
+def viterbi(input_mlf, word_dictionary, output_mlf, phoneset, hmmdir, file_name):
+    command = '/home/wenhao/software/bin/HVite -T 1 -a -m -I ' + input_mlf + ' -H ' + hmmdir + '/macros -H ' + hmmdir + '/hmmdefs  -S tmp/' + file_name + '_test.scp -i ' + output_mlf + ' -p 0.0 -s 5.0 ' + word_dictionary + ' ' + phoneset + ' > tmp/' + file_name + '_aligned.results'
+    # print(command)
     os.system(command)
 
 
@@ -556,9 +553,10 @@ def do_alignment(wavfile, trsfile, outfile, json = True, textgrid = False, phone
     if sr_override != None and sr_models != None and not sr_override in sr_models:
         raise ValueError("invalid sample rate: not an acoustic model available")
 
-    word_dictionary = "tmp/dict"
-    input_mlf = 'tmp/tmp.mlf'
-    output_mlf = 'tmp/aligned.mlf'
+    file_name = '_'.join('_'.join(wavfile.split('.')).split('/'))
+    word_dictionary = 'tmp/' + file_name + '.dict'
+    input_mlf = 'tmp/' + file_name + '_tmp.mlf'
+    output_mlf = 'tmp/' + file_name + '_aligned.mlf'
 
     # create working directory
     prep_working_directory()
@@ -574,14 +572,14 @@ def do_alignment(wavfile, trsfile, outfile, json = True, textgrid = False, phone
                 wd_file.write(local_dict_f.read())
 
     # prepare wavefile: do a resampling if necessary
-    tmpwav = "tmp/sound.wav"
+    tmpwav = 'tmp/' + file_name + '_sound.wav'
     SR = prep_wav(wavfile, tmpwav, sr_override, sr_models, wave_start, wave_end)
 
     if hmmsubdir == "FROM-SR":
         hmmsubdir = "/" + str(SR)
 
     # prepare mlfile
-    prep_mlf(trsfile, input_mlf, word_dictionary, surround_token, between_token, dialog_file = True)
+    prep_mlf(trsfile, input_mlf, word_dictionary, surround_token, between_token, file_name, dialog_file = True)
 
     # (do this again because we update dict.local in prep_mlf)
     with open(os.path.join(mypath, 'dict')) as dict_f:
@@ -597,17 +595,17 @@ def do_alignment(wavfile, trsfile, outfile, json = True, textgrid = False, phone
             wd_file.write(line)
 
     # prepare scp files
-    prep_scp(tmpwav)
+    prep_scp(tmpwav, file_name)
 
     # generate the plp file using a given configuration file for HCopy
-    create_plp(mypath + hmmsubdir + '/config')
+    create_plp(mypath + hmmsubdir + '/config', file_name)
 
     # run Verterbi decoding
     # print "Running HVite..."
     mpfile = mypath + '/monophones'
     if not os.path.exists(mpfile):
         mpfile = mypath + '/hmmnames'
-    viterbi(input_mlf, word_dictionary, output_mlf, mpfile, mypath + hmmsubdir)
+    viterbi(input_mlf, word_dictionary, output_mlf, mpfile, mypath + hmmsubdir, file_name)
 
     if json:
         # output as json
