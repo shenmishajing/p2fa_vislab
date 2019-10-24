@@ -477,20 +477,6 @@ def writeTextGrid(outfile, word_alignments):
 
     tgt.io.write_to_file(tg, outfile, format = 'long')
 
-    # # make the list of just phone alignments  # phons = []  # for wrd in word_alignments :  #     phons.extend(wrd[1:]) # skip the word label
-
-    # # make the list of just word alignments  # # we're getting elements of the form:  # #   ["word label", ["phone1", start, end], ["phone2", start, end], ...]  # wrds = []  # for wrd in word_alignments :  #     # If no phones make up this word, then it was an optional word  #     # like a pause that wasn't actually realized.  #     if len(wrd) == 1 :  #         continue  #     wrds.append([wrd[0], wrd[1][1], wrd[-1][2]]) # word label, first phone start time, last phone end time
-
-    # #write the phone interval tier
-
-    # # steve edits 1/23/2013  # fw = open(outfile, 'w')  # # fw.write('File type = "ooTextFile short"\n')  # fw.write('File type = "ooTextFile"\n')  # # fw.write('"TextGrid"\n')  # fw.write('Object class = "TextGrid"\n')  # fw.write('\n')  # fw.write(str(phons[0][1]) + '\n')  # fw.write(str(phons[-1][2]) + '\n')  # fw.write('<exists>\n')  # fw.write('2\n')  # fw.write('"IntervalTier"\n')  # fw.write('"phone"\n')  # fw.write(str(phons[0][1]) + '\n')  # fw.write(str(phons[-1][-1]) + '\n')  # fw.write(str(len(phons)) + '\n')  # for k in range(len(phons)):  #     fw.write(str(phons[k][1]) + '\n')  #     fw.write(str(phons[k][2]) + '\n')  #     fw.write('"' + phons[k][0] + '"' + '\n')
-
-    # #write the word interval tier  # fw.write('"IntervalTier"\n')  # fw.write('"word"\n')  # fw.write(str(phons[0][1]) + '\n')  # fw.write(str(phons[-1][-1]) + '\n')  # fw.write(str(len(wrds)) + '\n')  # for k in range(len(wrds) - 1):  #     fw.write(str(wrds[k][1]) + '\n')  #     fw.write(str(wrds[k+1][1]) + '\n')  #     fw.write('"' + wrds[k][0] + '"' + '\n')
-
-    # fw.write(str(wrds[-1][1]) + '\n')  # fw.write(str(phons[-1][2]) + '\n')  # fw.write('"' + wrds[-1][0] + '"' + '\n')
-
-    # fw.close()
-
 
 def prep_working_directory():
     if os.path.exists('tmp'):
