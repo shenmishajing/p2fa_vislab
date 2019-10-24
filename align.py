@@ -277,7 +277,7 @@ def writeInputMLF(mlffile, words):
 def writeDictTmp(dict_tmp):
     if len(dict_tmp.keys()) > 0:
         with open("dict.tmp", 'w') as f:
-            for w, pr in dict_tmp.iteritems():
+            for w, pr in dict_tmp.items():
                 f.write("%s  %s\n" % (w, pr))
 
 

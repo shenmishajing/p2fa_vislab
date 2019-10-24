@@ -33,7 +33,7 @@ class Pronounce(object):
         self.words.append(word)
 
     def p(self, add_fake_stress=False):
-        w_upper = [unicode(w).upper() for w in self.words]
+        w_upper = [str(w).upper() for w in self.words]
         
         punc_map = dict((ord(c), None) for c in string.punctuation)
         w_nopunc = [s.translate(punc_map) for s in w_upper]
