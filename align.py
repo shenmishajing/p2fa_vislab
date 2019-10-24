@@ -34,12 +34,15 @@ ALIGNMENT_SCHEMA = json.load(open(os.path.join(this_dir, "alignment-schemas/alig
 
 from .pronunciation import Pronounce
 
-# global that maps the original punctuation to the output all-caps
-# with stripped punctuation
-global_word_map = []
-global_speaker_map = []
-global_emo_map = []
-global_lineidx_map = []
+
+class GlobalMap:
+    def __init__(self):
+        # global that maps the original punctuation to the output all-caps
+        # with stripped punctuation
+        self.global_word_map = []
+        self.global_speaker_map = []
+        self.global_emo_map = []
+        self.global_lineidx_map = []
 
 
 def prep_wav(orig_wav, out_wav, sr_override, sr_models, wave_start, wave_end):
@@ -76,7 +79,7 @@ def prep_wav(orig_wav, out_wav, sr_override, sr_models, wave_start, wave_end):
     return SR
 
 
-def prep_mlf(trsfile, mlffile, word_dictionary, surround, between, file_name, dialog_file = False):
+def prep_mlf(trsfile, mlffile, word_dictionary, surround, between, file_name, global_map, dialog_file = False):
     dict_tmp = {}
 
     infl = inflect.engine()
@@ -232,12 +235,12 @@ def prep_mlf(trsfile, mlffile, word_dictionary, surround, between, file_name, di
                     words.extend(between)
 
             if len(gwm_entry) > 1:
-                global_word_map.append(gwm_entry)
-                global_lineidx_map.append(i)
+                global_map.global_word_map.append(gwm_entry)
+                global_map.global_lineidx_map.append(i)
                 if speakers is not None:
-                    global_speaker_map.append(speakers[i])
+                    global_map.global_speaker_map.append(speakers[i])
                 if emotions is not None:
-                    global_emo_map.append(emotions[i])
+                    global_map.global_emo_map.append(emotions[i])
         i += 1
 
     # remove the last 'between' token from the end
@@ -315,7 +318,7 @@ def readAlignedMLF(mlffile, SR, wave_start):
 
 
 # steve added 1/23/2013
-def writeJSON(outfile, word_alignments, phonemes = False):
+def writeJSON(outfile, word_alignments, global_map, phonemes = False):
     # make the list of just phone alignments
     phons = []
     word_phons = []
@@ -348,7 +351,7 @@ def writeJSON(outfile, word_alignments, phonemes = False):
         # print(wrds[total_word_idx], global_word_map[real_word_count])
 
         if wrds[total_word_idx][0] != "sp" and wrds[total_word_idx][0] != "{BR}":
-            word_length = len(global_word_map[real_word_count]) - 1
+            word_length = len(global_map.global_word_map[real_word_count]) - 1
         else:
             word_length = 1
 
@@ -363,18 +366,18 @@ def writeJSON(outfile, word_alignments, phonemes = False):
             pdb.set_trace()
 
         if wrds[total_word_idx][0] != "sp" and wrds[total_word_idx][0] != "{BR}":
-            tmp_word["word"] = global_word_map[real_word_count][0]
+            tmp_word["word"] = global_map.global_word_map[real_word_count][0]
             if phonemes:
                 tmp_word["phonemes"] = []
                 for wl_i in range(word_length):
                     tmp_word["phonemes"].extend(word_phons[total_word_idx + wl_i])
 
-            tmp_word["line_idx"] = global_lineidx_map[real_word_count]
+            tmp_word["line_idx"] = global_map.global_lineidx_map[real_word_count]
 
-            if len(global_speaker_map) > 0:
-                tmp_word["speaker"] = global_speaker_map[real_word_count]
-            if len(global_emo_map) > 0:
-                tmp_word["emotion"] = global_emo_map[real_word_count]
+            if len(global_map.global_speaker_map) > 0:
+                tmp_word["speaker"] = global_map.global_speaker_map[real_word_count]
+            if len(global_map.global_emo_map) > 0:
+                tmp_word["emotion"] = global_map.global_emo_map[real_word_count]
 
             real_word_count += 1
         elif wrds[total_word_idx][0] == "sp":
@@ -417,13 +420,13 @@ def writeJSON(outfile, word_alignments, phonemes = False):
 
     if wrds[-1][0] != "sp" and wrds[-1][0] != "{BR}":
         try:
-            tmp_word["word"] = global_word_map[real_word_count][0]
-            tmp_word["line_idx"] = global_lineidx_map[real_word_count]
+            tmp_word["word"] = global_map.global_word_map[real_word_count][0]
+            tmp_word["line_idx"] = global_map.global_lineidx_map[real_word_count]
 
-            if len(global_speaker_map) > 0:
-                tmp_word["speaker"] = global_speaker_map[real_word_count]
-            if len(global_emo_map) > 0:
-                tmp_word["emotion"] = global_emo_map[real_word_count]
+            if len(global_map.global_speaker_map) > 0:
+                tmp_word["speaker"] = global_map.global_speaker_map[real_word_count]
+            if len(global_map.global_emo_map) > 0:
+                tmp_word["emotion"] = global_map.global_emo_map[real_word_count]
 
             if phonemes:
                 tmp_word["phonemes"] = word_phons[total_word_idx]
@@ -523,13 +526,7 @@ def cli_do_alignment(wavfile, trsfile, outfile, json, textgrid, phonemes, breath
 
 
 def do_alignment(wavfile, trsfile, outfile, json = True, textgrid = False, phonemes = False, breaths = False):
-    # sr_override = getopt2("-r", opts, None)
-    # wave_start = getopt2("-s", opts, "0.0")
-    # wave_end = getopt2("-e", opts, None)
-    del global_word_map[:]
-    del global_speaker_map[:]
-    del global_emo_map[:]
-    del global_lineidx_map[:]
+    global_map = GlobalMap()
 
     sr_override = None
     wave_start = "0.0"
@@ -579,7 +576,8 @@ def do_alignment(wavfile, trsfile, outfile, json = True, textgrid = False, phone
         hmmsubdir = "/" + str(SR)
 
     # prepare mlfile
-    prep_mlf(trsfile, input_mlf, word_dictionary, surround_token, between_token, file_name, dialog_file = True)
+    prep_mlf(trsfile, input_mlf, word_dictionary, surround_token, between_token, file_name, global_map,
+             dialog_file = True)
 
     # (do this again because we update dict.local in prep_mlf)
     with open(os.path.join(mypath, 'dict')) as dict_f:
@@ -609,7 +607,7 @@ def do_alignment(wavfile, trsfile, outfile, json = True, textgrid = False, phone
 
     if json:
         # output as json
-        writeJSON(outfile, readAlignedMLF(output_mlf, SR, float(wave_start)), phonemes = phonemes)
+        writeJSON(outfile, readAlignedMLF(output_mlf, SR, float(wave_start)), global_map, phonemes = phonemes)
 
     if textgrid:
         # output the alignment as a Praat TextGrid
